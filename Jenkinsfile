@@ -40,21 +40,17 @@ pipeline {
             }
         }
 
-        stage('Stop Old Container') {
+        stage('Deploy via SSH to EC2') {
             steps {
-                sh 'docker rm -f ml_app || true'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t ml_app .'
-            }
-        }
-
-        stage('Run Container') {
-            steps {
-                sh 'docker run -d -p 8000:8000 --name ml_app ml_app'
+                sh '''
+                    ssh -i /tmp/jenkins_ec2 -o StrictHostKeyChecking=no ubuntu@172.31.16.105 "
+                        cd ~/labmid &&
+                        git pull origin main &&
+                        docker rm -f ml_app || true &&
+                        docker build -t ml_app . &&
+                        docker run -d -p 8000:8000 --name ml_app ml_app
+                    "
+                '''
             }
         }
     }
