@@ -12,9 +12,15 @@ pipeline {
             }
         }
 
+        stage('Setup Config') {
+            steps {
+                sh 'cp configs/FA23-BAI-014_config.json config.json'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                sh 'pip install -r requirements.txt'
+                sh 'python3 -m pip install --break-system-packages -r requirements.txt'
             }
         }
 
@@ -45,7 +51,7 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully! API is running at port 8000.'
+            echo 'Pipeline completed! API running at port 8000.'
         }
         failure {
             echo 'Pipeline failed. Check the logs above.'
