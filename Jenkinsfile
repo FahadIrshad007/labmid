@@ -20,7 +20,17 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'python3 -m pip install --break-system-packages -r requirements.txt'
+                sh 'python3 -m pip install --break-system-packages -r requirements.txt || python3 -m pip install -r requirements.txt'
+            }
+        }
+
+        stage('Generate Dataset if Missing') {
+            steps {
+                sh '''
+                    if [ ! -f "dataset/train.csv" ]; then
+                        python3 generate_dataset.py
+                    fi
+                '''
             }
         }
 
