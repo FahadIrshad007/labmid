@@ -1,0 +1,34 @@
+name: MLOps Pipeline
+
+on:
+  push:
+    paths:
+      - 'dataset/**'
+      - '.github/workflows/**'
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Fetch data from GitHub
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Train model
+        run: python train.py
+
+      - name: Stop running container
+        run: docker rm -f ml_app || true
+
+      - name: Build Docker Image
+        run: docker build -t ml_app .
+
+      - name: Run container
+        run: docker run -d -p 8000:8000 --name ml_app ml_app
